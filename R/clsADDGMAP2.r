@@ -1,5 +1,3 @@
-##wrebgrebg
-
 setClass("ADDGMAP",
 	representation = representation(
 						strEqcCommand	= "character",

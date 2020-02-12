@@ -1,5 +1,3 @@
-## einws
-
 setClass("ADDGENE",
 	representation = representation(
 						strEqcCommand	= "character",
