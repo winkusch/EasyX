@@ -1,0 +1,17 @@
+Package: EasyX
+Type: Package
+Title: EasyX = EasyStrata + EasyQC 
+Version: 22.7
+Date: 2020-02-10
+Author: Thomas Winkler
+Maintainer: Thomas Winkler <thomas.winkler@klinik.uni-regensburg.de>
+Description: EasyX - A toolbox for GWA-QC and GWA-GxE analysis. 
+License: GPL-3
+LazyLoad: yes
+Depends: methods,Cairo,plotrix,data.table,forestplot
+Collate: 	clsEqcReader5.r clsRCD8.r clsGWADATA74.r clsEASYMERGE15.r clsEASYRBIND15.r fnEasyPLOT13.r clsREPORT10.r clsMERGE18.r clsSPLOT25.r
+			clsADDCOL11.r clsADDGENE.r clsADDGMAP2.r clsADJUSTALLELES22.r clsADJUSTALLELESSIMPLE2.r clsAFCHECK19.r clsANNOTATE11.r clsBONFERRONI4.r clsBRPLOT2.r clsCALCPDIFF9.r clsCALCPDIFFDIFF.r clsCALCPHET4.r 
+			clsCALCULATE3.r clsCLEAN7.r clsCLEANDUPLICATES11.r clsCLUMP9.r clsCREATECPAID4.r clsCREATECPTID11.r clsCRITERION6.r clsEDITCOL.r clsEFFECTPLOT7.r clsENRICHMENT9.r clsEVALSTAT8.r clsEXTRACTSNPS4.r clsFANCYPLOT2.r
+			clsFDR4.r clsFILTER7.r clsFLIPSTRAND4.r clsFORESTPLOT5.r clsGC8.r clsGETCOLS2.r clsGETNUM2.r clsGETVAR4.r clsGETVARTYPE2.r clsHARMONIZEALLELES5.r clsINDEP39.r clsINDEPX9.r clsLOADINFO20.r clsMULTCLUMP4.r clsMULTINDEP20.r clsJOINTTEST5.r 
+			clsMERGEEASYIN6.r clsMETAANALYSIS6.r clsMHPLOT22.r clsMIAMIPLOT20.r clsPZPLOT7.r clsQQPLOT27.r clsRADDCOL.r clsREMOVECOL.r clsREMOVESNPS.r clsRENAMECOL3.r clsRENAMEMARKER11.r 
+			clsRPLOT25.r clsSORT.r clsSTRSPLITCOL2.r clsWEIGHTEDHYPOTHESIS2.r clsWRITE18.r EasyX22_7.r

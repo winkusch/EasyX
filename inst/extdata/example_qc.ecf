@@ -1,0 +1,64 @@
+#################################################################################################################
+#################################################################################################################
+
+DEFINE	--pathOut ./
+		--acolIn MarkerName;Effect_allele;Other_allele;EAF;Information_type;Information;BETA;SE;P;N 
+		--acolInClasses character;character;character;numeric;integer;numeric;numeric;numeric;numeric;numeric
+		--strMissing .
+		--strSeparator TAB
+
+### PLEASE DEFINE HERE ALL INPUT FILES OF THE STUDY:
+EASYIN --fileIn EASY_INSTALL_DIR/studyX_file1.txt.gz
+EASYIN --fileIn EASY_INSTALL_DIR/studyX_file2.txt.gz
+
+#################################################################################################################
+## EASYQC Scripting interface:
+START EASYQC
+
+################
+## Cleaning
+CLEAN --rcdClean (EAF==0)|(EAF==1) --strCleanName numDrop_Monomorph
+
+CLEAN --rcdClean is.na(Effect_allele) --strCleanName numDrop_Missing_EA
+CLEAN --rcdClean is.na(Other_allele) --strCleanName numDrop_Missing_OA
+CLEAN --rcdClean is.na(P) --strCleanName numDrop_Missing_P
+CLEAN --rcdClean is.na(BETA) --strCleanName numDrop_Missing_BETA
+CLEAN --rcdClean is.na(SE) --strCleanName numDrop_Missing_SE
+CLEAN --rcdClean is.na(EAF) --strCleanName numDrop_Missing_EAF
+CLEAN --rcdClean is.na(N) --strCleanName numDrop_Missing_N
+
+CLEAN --rcdClean !(Effect_allele%in%c('A','C','G','T')) --strCleanName numDrop_invalid_EA
+CLEAN --rcdClean !(Other_allele%in%c('A','C','G','T')) --strCleanName numDrop_invalid_OA
+CLEAN --rcdClean P<0|P>1 --strCleanName numDrop_invalid_P
+CLEAN --rcdClean SE<=0|SE==Inf --strCleanName numDrop_invalid_SE
+CLEAN --rcdClean abs(BETA)==Inf --strCleanName numDrop_invalid_BETA
+CLEAN --rcdClean (EAF<0)|(EAF>1) --strCleanName numDrop_invalid_EAF
+
+CLEAN --rcdClean N<30 --strCleanName numDrop_Nlt30
+ADDCOL --rcdAddCol 2*pmin(EAF,1-EAF)*N --colOut MAC
+CLEAN --rcdClean MAC<=6 --strCleanName numDrop_MAClet6
+
+CLEAN 	--rcdClean is.na(Information_type)
+		--strCleanName numDrop_MissingInformationType
+CLEAN	--rcdClean Information_type==0&Information<1
+		--strCleanName numDrop_Genotyped_LowInformation
+CLEAN	--rcdClean (Information_type!= 0)&(is.na(Information))
+		--strCleanName numDrop_Imputed_MissingInformation
+CLEAN	--rcdClean (Information_type!=0&Information<0.3)|(Information_type==2&Information<0.4)|(Information_type==3&Information<0.8) 
+		--strCleanName numDrop_LowInformation
+
+
+################
+## Throw out duplicates
+CLEANDUPLICATES	--colInMarker MarkerName 
+				--strMode samplesize 
+				--colN N
+
+################
+## Save cleaned file for upload to the ftp-site				
+WRITE	--strPrefix CLEANED. --strMissing .
+		
+STOP EASYQC
+
+#################################################################################################################
+#################################################################################################################
