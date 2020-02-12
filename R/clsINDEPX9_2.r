@@ -1,3 +1,5 @@
+# new version
+
 setClass("INDEPX",
 	representation = representation(
 						strEqcCommand		=	"character",
