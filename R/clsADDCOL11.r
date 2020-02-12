@@ -1,3 +1,6 @@
+### Comment 
+## zwoa
+
 setClass("ADDCOL",
 	representation = representation(
 						strEqcCommand		=	"character",
