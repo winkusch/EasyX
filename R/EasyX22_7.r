@@ -1,3 +1,4 @@
+### CHANGED HERE
 # rm(list = ls(all = TRUE))
 # graphics.off()
 # closeAllConnections()
