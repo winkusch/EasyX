@@ -1,15 +1,14 @@
-### CHANGED HERE
 # rm(list = ls(all = TRUE))
 # graphics.off()
 # closeAllConnections()
 # options(show.error.messages = TRUE)
 # options(warn=0)
 
-# setwd("/data/M_GENETICS/ScriptsDBDebug/easy_x/200130_debug_indep2/")
+# setwd("/data/M_GENETICS/ScriptsDBDebug/easy_x/200519_debug_23_5_annot_gwascatalogue/")
 
 # # fileECF	<-	"indep.ecf"
 # # fileECF	<-	"multindep_pos.ecf"
-# fileECF	<-	"indepx_known.ecf"
+# fileECF	<-	"gcat.ecf"
 
 # pathClasses <- 	"/data/M_GENETICS/ScriptsDBDebug/easy_x/bin/"
 # blnLogMemoryExtern <- FALSE
@@ -115,7 +114,7 @@
 # if(blnLogMemoryExtern) 
 	# system2(shMemLog, args=c(Sys.getpid(),Sys.getenv("USER"),fileEcfOut), wait=FALSE)
 
-# # # # ### NEED TO SET STOP CONDITION AFTER EASYX FUN CALL !!!!!!!!!
+# # # ### NEED TO SET STOP CONDITION AFTER EASYX FUN CALL !!!!!!!!!
 
 
 #######################################################################################################################
@@ -136,7 +135,7 @@ fnSetNumCol <- function(objGWA) {
 EasyX.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,blnReturnReport=FALSE,aFileIn=c()){ 
 	
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
-	cat("|       EasyX	      |    v22.7   |      10/February/2020    |\n")
+	cat("|       EasyX	       |    v23.8   |        05/June/2020     |\n")
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 	cat("|  (C) 2013 Thomas Winkler, GNU General Public License, v3   |\n")
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
@@ -218,7 +217,7 @@ EasyX.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 								"FLIPSTRAND","GC","GETCOLS","GETNUM","QQPLOT","REMOVECOL","REMOVESNPS","RENAMECOL","RPLOT",
 								"RENAMEMARKER","CREATECPTID","HARMONIZEALLELES","AFCHECK","PZPLOT","CREATECPAID","ADJUSTALLELESSIMPLE","RADDCOL","LOADINFO","GETVARTYPE","BRPLOT", 
 								"ANNOTATE","BONFERRONI","CALCPDIFF","CALCPHET","CLUMP","FDR","INDEP","MHPLOT","MIAMIPLOT","FANCYPLOT","MULTINDEP","MULTCLUMP","EFFECTPLOT","ENRICHMENT",
-								"GETVAR", "FORESTPLOT","WEIGHTEDHYPOTHESIS","ADDGENE","ADDGMAP","INDEPX")
+								"GETVAR", "FORESTPLOT","WEIGHTEDHYPOTHESIS","ADDGENE","ADDGMAP","INDEPX","GWASCATALOGUE")
 	
 	isEasyFunMatch = astrEasyFuns.used%in%astrEasyFuns.allowed
 	if(any(!isEasyFunMatch)) 
@@ -697,6 +696,11 @@ EasyX.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 							ANNOTATE.GWADATA.valid(objANNOT, objGWA)		
 							objGWA 	<- ANNOTATE.run(objANNOT, objGWA)							
 						}
+						if(strScriptFun == "GWASCATALOGUE") {
+							objGCAT 	<- GWASCATALOGUE(strCommand)
+							GWASCATALOGUE.GWADATA.valid(objGCAT, objGWA)		
+							objGWA 	<- GWASCATALOGUE.run(objGCAT, objGWA)
+						}
 						if(strScriptFun == "ADDGENE") {
 							objADDGENE 	<- ADDGENE(strCommand)
 							ADDGENE.GWADATA.valid(objADDGENE, objGWA)		
@@ -839,6 +843,8 @@ EasyX.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 									tblRR <- data.frame()
 								}
 							}
+							
+							# if(isValidScript) stop()
 							
 							lsOut 	<- INDEPX.run(objINDEPX, objGWA, objREPORT, tblRR, isValidScript)
 							

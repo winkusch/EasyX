@@ -1,5 +1,3 @@
-# new version
-
 setClass("INDEPX",
 	representation = representation(
 						strEqcCommand		=	"character",
@@ -10,6 +8,7 @@ setClass("INDEPX",
 						colInChr			=	"character",
 						colInPos			=	"character",
 						numPosLim			=	"numeric",
+						numPosRegionExtension =	"numeric",
 						fileRecombRate		=	"character",
 						colRecombRateChr	=	"character",
 						colRecombRatePos	=	"character",
@@ -25,6 +24,7 @@ setClass("INDEPX",
 						colAnnotTag			=	"character",
 						colAnnotChr			=	"character",
 						colAnnotPos			=	"character",
+						colAnnotCoord		=	"character",
 						numAnnotPosLim		=	"numeric",
 						blnAddIndepInfo 	= 	"logical",
 						strTag				=	"character"
@@ -38,6 +38,7 @@ setClass("INDEPX",
 						colInChr			=	"",
 						colInPos			=	"",
 						numPosLim			=	500000,
+						numPosRegionExtension =	-1, # by default will be set to numPosLim/2
 						fileRecombRate		=	"",
 						colRecombRateChr	=	"chr",
 						colRecombRatePos	=	"position",
@@ -53,6 +54,7 @@ setClass("INDEPX",
 						colAnnotTag			=	"",
 						colAnnotChr			=	"Chr",
 						colAnnotPos			=	"Pos",
+						colAnnotCoord		=	"",
 						numAnnotPosLim		=	-1,
 						blnAddIndepInfo 	= 	FALSE,
 						strTag				=	"INDEPX"
@@ -63,9 +65,9 @@ setClass("INDEPX",
 setGeneric("setINDEPX", function(object) standardGeneric("setINDEPX"))
 setMethod("setINDEPX", signature = (object = "INDEPX"), function(object) {
 	
-	aEqcSlotNamesIn = c("rcdCriterion","acolPval","astrPvalTag","anumPvalLim","colInChr","colInPos","numPosLim","fileRecombRate","colRecombRateChr","colRecombRatePos","colRecombRate","numRecombRateLim",
+	aEqcSlotNamesIn = c("rcdCriterion","acolPval","astrPvalTag","anumPvalLim","colInChr","colInPos","numPosLim","numPosRegionExtension","fileRecombRate","colRecombRateChr","colRecombRatePos","colRecombRate","numRecombRateLim",
 						"fileGene","colGeneChr","colGenePosStart","colGenePosStop","colGeneName",
-						"fileAnnot","strAnnotTag","colAnnotTag","colAnnotChr","colAnnotPos","numAnnotPosLim",
+						"fileAnnot","strAnnotTag","colAnnotTag","colAnnotChr","colAnnotPos","colAnnotCoord","numAnnotPosLim",
 						"blnAddIndepInfo","strTag")
 	
 	objEqcReader <- EqcReader(object@strEqcCommand,aEqcSlotNamesIn)
@@ -154,14 +156,26 @@ validINDEPX <- function(objINDEPX) {
 			
 		tk = read.table(objINDEPX@fileAnnot, sep="\t", header=T, stringsAsFactors=F, nrows=1)
 		
-		isAv = objINDEPX@colAnnotChr %in% names(tk)
-		if(!isAv)
-			stop(paste(" EASY ERROR:INDEPX\n Defined column --colAnnotChr \n",objINDEPX@colAnnotChr, "\n is not available in known loci file \n",objINDEPX@fileAnnot,"\n PLease specify correct column name.", sep=""))
+		isUseCoord = objINDEPX@colAnnotCoord != ""
 		
-		isAv = objINDEPX@colAnnotPos %in% names(tk)
-		if(!isAv)
-			stop(paste(" EASY ERROR:INDEPX\n Defined column --colAnnotPos \n",objINDEPX@colAnnotPos, "\n is not available in known loci file \n",objINDEPX@fileAnnot,"\n PLease specify correct column name.", sep=""))
-	
+		if(isUseCoord) {
+		
+			isAv = objINDEPX@colAnnotCoord %in% names(tk)
+				if(!isAv)
+					stop(paste(" EASY ERROR:INDEPX\n Defined column --colAnnotCoord \n",objINDEPX@colAnnotCoord, "\n is not available in known loci file \n",objINDEPX@fileAnnot,"\n PLease specify correct column name.", sep=""))
+		
+		} else {
+		
+			isAv = objINDEPX@colAnnotChr %in% names(tk)
+			if(!isAv)
+				stop(paste(" EASY ERROR:INDEPX\n Defined column --colAnnotChr \n",objINDEPX@colAnnotChr, "\n is not available in known loci file \n",objINDEPX@fileAnnot,"\n PLease specify correct column name.", sep=""))
+			
+			isAv = objINDEPX@colAnnotPos %in% names(tk)
+			if(!isAv)
+				stop(paste(" EASY ERROR:INDEPX\n Defined column --colAnnotPos \n",objINDEPX@colAnnotPos, "\n is not available in known loci file \n",objINDEPX@fileAnnot,"\n PLease specify correct column name.", sep=""))
+			
+		}
+		
 		if(objINDEPX@colAnnotTag != "") {
 			isAv = objINDEPX@colAnnotTag %in% names(tk)
 			if(!isAv)
@@ -188,6 +202,8 @@ INDEPX.GWADATA.valid <- function(objINDEPX, objGWA) {
 	if(length(objINDEPX@anumPvalLim)==1 & length(objINDEPX@acolPval)>1) objINDEPX@anumPvalLim = rep(objINDEPX@anumPvalLim[1], length(objINDEPX@acolPval))
 	
 	if(all(objINDEPX@astrPvalTag=="")) objINDEPX@astrPvalTag = objINDEPX@acolPval
+	
+	if(objINDEPX@numPosRegionExtension == -1) objINDEPX@numPosRegionExtension = objINDEPX@numPosLim/2
 	
 	return(objINDEPX)
 	
@@ -222,6 +238,8 @@ INDEPX.run <- function(objINDEPX, objGWA, objREPORT, tblRR, isValidScript) {
 	colInChr		<- objINDEPX@colInChr
 	colInPos		<- objINDEPX@colInPos
 	numPosLim		<- objINDEPX@numPosLim
+	numPosRegionExtension <- objINDEPX@numPosRegionExtension
+	
 	fileRecombRate <- objINDEPX@fileRecombRate
 	numRecombRateLim <- objINDEPX@numRecombRateLim
 	
@@ -236,6 +254,7 @@ INDEPX.run <- function(objINDEPX, objGWA, objREPORT, tblRR, isValidScript) {
 	colAnnotTag 	<- objINDEPX@colAnnotTag
 	colAnnotChr 	<- objINDEPX@colAnnotChr
 	colAnnotPos 	<- objINDEPX@colAnnotPos
+	colAnnotCoord  	<- objINDEPX@colAnnotCoord
 	numAnnotPosLim 	<- objINDEPX@numAnnotPosLim
 	
 	blnAddIndepInfo	<- objINDEPX@blnAddIndepInfo
@@ -275,17 +294,24 @@ INDEPX.run <- function(objINDEPX, objGWA, objREPORT, tblRR, isValidScript) {
 			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionId",sep=""))
 			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionLead",sep=""))
 			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionTag",sep=""))
+			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionNumVariants",sep=""))
 			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionCoordinates",sep=""))
+			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionSize",sep=""))
+			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionExtCoordinates",sep=""))
+			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionExtSize",sep=""))
 			
 			if(blnRecombRate) {
 				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalId",sep=""))
 				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalLead",sep=""))
 				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalTag",sep=""))
+				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalNumVariants",sep=""))
 				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalCoordinates",sep=""))
+				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalSize",sep=""))
 			}
 			
 			if(blnAnnot) {
-				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"",sep=""))
+				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionAnnot",sep=""))
+				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"annotDistance",sep=""))
 				if(blnRecombRate) objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalAnnot",sep=""))
 			}
 			
@@ -340,17 +366,24 @@ INDEPX.run <- function(objINDEPX, objGWA, objREPORT, tblRR, isValidScript) {
 			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionId",sep=""))
 			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionLead",sep=""))
 			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionTag",sep=""))
+			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionNumVariants",sep=""))
 			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionCoordinates",sep=""))
+			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionSize",sep=""))
+			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionExtCoordinates",sep=""))
+			objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionExtSize",sep=""))
 			
 			if(blnRecombRate) {
 				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalId",sep=""))
 				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalLead",sep=""))
 				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalTag",sep=""))
+				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalNumVariants",sep=""))
 				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalCoordinates",sep=""))
+				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalSize",sep=""))
 			}
 			
 			if(blnAnnot) {
-				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"",sep=""))
+				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"regionAnnot",sep=""))
+				objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"annotDistance",sep=""))
 				if(blnRecombRate) objGWA <- GWADATA.cbind(objGWA, rep(NA,nrow(objGWA@tblGWA)), paste(strTag,"signalAnnot",sep=""))
 			}
 			
@@ -391,7 +424,7 @@ INDEPX.run <- function(objINDEPX, objGWA, objREPORT, tblRR, isValidScript) {
 	####################################
 	### 1. Obtain regionId, regionLead
 	
-	regionId <- regionLead <- regionCoordinates <- regionSize <- rep(NA, nrow(tInSort))
+	regionId <- regionLead <- regionCoordinates <- regionSize <- regionExtCoordinates <- regionExtSize <- rep(NA, nrow(tInSort))
 	
 	regioncount = 1
 	
@@ -424,8 +457,12 @@ INDEPX.run <- function(objINDEPX, objGWA, objREPORT, tblRR, isValidScript) {
 		
 		regionId[isCurRegionNew] = regioncount
 		regionLead[iTmpExtr] = regioncount
-		regionCoordinates[isCurRegionNew] = paste(chrExtr,":",regionPos1-numPosLim,"_",regionPos2+numPosLim,sep="")
-		regionSize[isCurRegionNew] = (regionPos2+numPosLim) - (regionPos1-numPosLim)
+		# regionCoordinates[isCurRegionNew] = paste(chrExtr,":",regionPos1-numPosLim,"_",regionPos2+numPosLim,sep="")
+		# INDEPX10 update: It is important to increase the regions by numPosLim/2 because otherwise regions will overlap !
+		regionCoordinates[isCurRegionNew] = paste(chrExtr,":",regionPos1,"_",regionPos2,sep="")
+		regionSize[isCurRegionNew] = regionPos2 - regionPos1
+		regionExtCoordinates[isCurRegionNew] = paste(chrExtr,":",regionPos1-numPosRegionExtension,"_",regionPos2+numPosRegionExtension,sep="")
+		regionExtSize[isCurRegionNew] = (regionPos2+numPosRegionExtension) - (regionPos1-numPosRegionExtension)
 		
 		regioncount = regioncount + 1
 		
@@ -642,44 +679,73 @@ INDEPX.run <- function(objINDEPX, objGWA, objREPORT, tblRR, isValidScript) {
 		
 		tAn<-read.table(fileAnnot, header=T, sep="\t", stringsAsFactors=FALSE)
 		
-		anchr = tAn[,colAnnotChr]
-		anpos = as.integer(tAn[,colAnnotPos])
+		# colAnnotCoord
+		if(colAnnotCoord!="") {
+			## extract values from coord 1:123_466
+			acoord = tAn[,colAnnotCoord]
+			anchr = unlist(lapply(strsplit(acoord,":"),function(x) x[1]))
+			strpos = unlist(lapply(strsplit(acoord,":"),function(x) x[2]))
+			anpos1 = as.integer(unlist(lapply(strsplit(strpos,"_"),function(x) x[1])))
+			anpos2 = as.integer(unlist(lapply(strsplit(strpos,"_"),function(x) x[2])))
+		} else {
+			anchr = tAn[,colAnnotChr]
+			anpos = as.integer(tAn[,colAnnotPos])
+			anpos1 = anpos
+			anpos2 = anpos
+		}
 		
 		if(colAnnotTag != "") {
 			antag = tAn[, colAnnotTag]
 		} else {
-			antag = rep(strAnnotTag,length(anpos))
+			antag = rep(strAnnotTag,length(anpos1))
 		}
 		
 		## if known lead variant is < numAnnotPosLim distant from region border (outer gws variant!; not (outer gws variant + numPosLim) """")
 		
 		for(rid in unique(regionId)) {
 			
+			# if(rid==135) stop()
+			
 			isRegion = regionId == rid
 			rchr = unique(aChr[isRegion])
 			rpos1 = min(aPos[isRegion],na.rm=T)
 			rpos2 = max(aPos[isRegion],na.rm=T)
 			
+			## extend by annot distance
+			rpos1 = rpos1-numAnnotPosLim
+			rpos2 = rpos2+numAnnotPosLim
+			
 			## do not use regionCoordinates because those were extended by numPoslim
 			
-			isKnown = anchr == rchr & anpos >= (rpos1-numAnnotPosLim) & anpos <= (rpos2+numAnnotPosLim)
+			isKnown = anchr == rchr & ((rpos1>=anpos1 & rpos1<=anpos2) | (rpos2>=anpos1 & rpos2<=anpos2) | (rpos1<=anpos1 & rpos2>=anpos2))
 			
 			if(any(isKnown)) {
-				unitag = unique(antag[isKnown])
-				unitag = unitag[!is.na(unitag)]	
-				if(length(unitag)>0) regionAnnot[isRegion] = paste(unitag,collapse=";")	
 				
-				aanpostmp = anpos[isKnown]
+				atagknown = antag[isKnown]
+				unitag = unique(atagknown)
+				
+				aanpos1tmp = anpos1[isKnown]
+				aanpos2tmp = anpos2[isKnown]
+				
 				countannots = 1
-				for(anpostmp in aanpostmp) {
+				
+				for(ik in 1:length(which(isKnown))) {
 					if(countannots == 1) {
-						adistmp = anpostmp - aPos[isRegion]
+						is1 = abs(aanpos1tmp[ik]-aPos[isRegion])<abs(aanpos2tmp[ik]-aPos[isRegion])
+						adistmp = ifelse(is1, aanpos1tmp[ik] - aPos[isRegion], aanpos2tmp[ik] - aPos[isRegion])
 					} else {
-						adistmp = paste(adistmp, anpostmp - aPos[isRegion], sep=";")
+						is1 = abs(aanpos1tmp[ik]-aPos[isRegion])<abs(aanpos2tmp[ik]-aPos[isRegion])
+						adistmp = c(adistmp, ifelse(is1, aanpos1tmp[ik] - aPos[isRegion], aanpos2tmp[ik] - aPos[isRegion]))
 					}
 					countannots = countannots + 1
 				}
-				annotDistance[isRegion] = adistmp
+				
+				if(length(unitag)>0) {
+					aidxsorttag = order(unitag)
+					regionAnnot[isRegion] = paste(unitag[aidxsorttag],collapse=";")	
+					annotDistance[isRegion] = paste(adistmp[aidxsorttag],collapse=";")	
+				}
+				
 			}
 		}
 		
@@ -693,12 +759,14 @@ INDEPX.run <- function(objINDEPX, objGWA, objREPORT, tblRR, isValidScript) {
 				spos1 = as.numeric(unlist(lapply(strsplit(spos,"_"), function(x) x[1])))
 				spos2 = as.numeric(unlist(lapply(strsplit(spos,"_"), function(x) x[2])))
 				
-				isKnown = anchr == schr & anpos >= spos1 & anpos <= spos2
+				isKnown = anchr == schr & ((anpos1 >= (spos1-numAnnotPosLim) & anpos1 <= (spos2+numAnnotPosLim)) | (anpos2 >= (spos1-numAnnotPosLim) & anpos2 <= (spos2+numAnnotPosLim)))
+				
+				isKnown = anchr == schr & ((spos1>=anpos1 & spos1<=anpos2) | (spos2>=anpos1 & spos2<=anpos2) | (spos1<=anpos1 & spos2>=anpos2))
 				
 				if(any(isKnown)) {
 					unitag = unique(antag[isKnown])
 					unitag = unitag[!is.na(unitag)]	
-					if(length(unitag)>0) signalAnnot[isSignal] = paste(unitag,collapse=";")
+					if(length(unitag)>0) signalAnnot[isSignal] = paste(sort(unitag),collapse=";")
 				}
 			}
 		}
@@ -720,6 +788,9 @@ INDEPX.run <- function(objINDEPX, objGWA, objREPORT, tblRR, isValidScript) {
 	objGWA.indep = GWADATA.cbind(objGWA.indep, regionNumVariants, paste(strTag,"regionNumVariants",sep=""))
 	objGWA.indep = GWADATA.cbind(objGWA.indep, regionCoordinates, paste(strTag,"regionCoordinates",sep=""))
 	objGWA.indep = GWADATA.cbind(objGWA.indep, regionSize, paste(strTag,"regionSize",sep=""))
+	objGWA.indep = GWADATA.cbind(objGWA.indep, regionExtCoordinates, paste(strTag,"regionExtCoordinates",sep=""))
+	objGWA.indep = GWADATA.cbind(objGWA.indep, regionExtSize, paste(strTag,"regionExtSize",sep=""))
+	
 	
 	if(blnAnnot) {
 		objGWA.indep = GWADATA.cbind(objGWA.indep, regionAnnot, paste(strTag,"regionAnnot",sep=""))

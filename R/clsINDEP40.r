@@ -711,6 +711,7 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 		objGWA.indep = GWADATA.cbind(objGWA.indep, aNearestGene, paste(strTag,"NearestGene",sep=""))
 		objGWA.indep = GWADATA.cbind(objGWA.indep, aNearestGeneDistance, paste(strTag,"NearestGeneDistance",sep=""))
 		
+		colInGene = paste(strTag,"NearestGene",sep="")
 		
 		# objGWA.indep = GWADATA.cbind(objGWA.indep, aNearestGene, "aNearestGene")
 		# objGWA.indep = GWADATA.cbind(objGWA.indep, aNearestGeneDistance, "aNearestGeneDistance")

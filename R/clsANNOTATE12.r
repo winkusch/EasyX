@@ -6,12 +6,13 @@ setClass("ANNOTATE",
 						colInPval		=	"character",
 						numPvalLim		= 	"numeric",
 						fileAnnot		=	"character",
-						colRefChr		=	"character",
-						colRefPos		=	"character",
+						colAnnotChr		=	"character",
+						colAnnotPos		=	"character",
 						strAnnotTag		=	"character",
-						colRefTag		=	"character",
+						colAnnotTag		=	"character",
+						colAnnotCoord	= 	"character",
 						colOutAnnot		=	"character",
-						numPosLim		=	"numeric"
+						numAnnotPosLim	=	"numeric"
 						),
 	prototype = prototype(
 						strEqcCommand	=	"",
@@ -20,12 +21,13 @@ setClass("ANNOTATE",
 						colInPval		=	"",
 						numPvalLim		= 	1,
 						fileAnnot		=	"",
-						colRefChr		=	"Chr",
-						colRefPos		=	"Pos",
+						colAnnotChr		=	"Chr",
+						colAnnotPos		=	"Pos",
 						strAnnotTag		=	"",
-						colRefTag		=	"",
+						colAnnotTag		=	"",
+						colAnnotCoord	=   "",
 						colOutAnnot		=	"AnnotTag",
-						numPosLim		=	500000
+						numAnnotPosLim	=	500000
 						)
 	#contains = c("EcfReader")
 )
@@ -33,8 +35,8 @@ setClass("ANNOTATE",
 setGeneric("setANNOTATE", function(object) standardGeneric("setANNOTATE"))
 setMethod("setANNOTATE", signature = (object = "ANNOTATE"), function(object) {
 	
-	#aEqcSlotNamesIn = c("colInChr","colInPos","colInPval","numPvalLim","fileAnnot","colRefChr","colRefPos","strAnnotTag","colOutAnnot","numPosLim")
-	aEqcSlotNamesIn = c("colInChr","colInPos","colInPval","numPvalLim","fileAnnot","strAnnotTag","colOutAnnot","numPosLim","colRefTag")
+	#aEqcSlotNamesIn = c("colInChr","colInPos","colInPval","numPvalLim","fileAnnot","colAnnotChr","colAnnotPos","strAnnotTag","colOutAnnot","numAnnotPosLim")
+	aEqcSlotNamesIn = c("colInChr","colInPos","colInPval","numPvalLim","fileAnnot","strAnnotTag","colOutAnnot","numAnnotPosLim","colAnnotTag","colAnnotCoord")
 
 	objEqcReader <- EqcReader(object@strEqcCommand,aEqcSlotNamesIn)
 	
@@ -59,11 +61,11 @@ validANNOTATE <- function(objANNOTATE) {
 	if(objANNOTATE@fileAnnot == "") 
 		stop(paste(" EASY ERROR:ANNOTATE\n No reference file defined. Please set fileAnnot.", sep=""))
 	
-	if(objANNOTATE@strAnnotTag == "" & objANNOTATE@colRefTag == "") 
-		stop(paste(" EASY ERROR:ANNOTATE\n No strAnnotTag or colRefTag defined. Please set one of the two.", sep=""))
+	if(objANNOTATE@strAnnotTag == "" & objANNOTATE@colAnnotTag == "") 
+		stop(paste(" EASY ERROR:ANNOTATE\n No strAnnotTag or colAnnotTag defined. Please set one of the two.", sep=""))
 			
-	if(objANNOTATE@strAnnotTag != "" & objANNOTATE@colRefTag != "") 		 
-		warning(paste(" EASY ERROR:ANNOTATE\n Both strAnnotTag and colRefTag were defined. ANNOTATE will use colRefTag and ignore the strAnnotTag.", sep=""))
+	if(objANNOTATE@strAnnotTag != "" & objANNOTATE@colAnnotTag != "") 		 
+		warning(paste(" EASY ERROR:ANNOTATE\n Both strAnnotTag and colAnnotTag were defined. ANNOTATE will use colAnnotTag and ignore the strAnnotTag.", sep=""))
 	
 	
 	### Valid with GWADATA?
@@ -75,17 +77,26 @@ validANNOTATE <- function(objANNOTATE) {
 		
 		tblAnnot<-read.table(objANNOTATE@fileAnnot,header=T, sep="",  stringsAsFactors=FALSE)
 		
-		isAv <- objANNOTATE@colRefChr %in% names(tblAnnot)
-		if(!isAv)
-			stop(paste(" EASY ERROR:ANNOTATE\n Defined column colRefChr \n",objANNOTATE@colRefChr, "\n is not available in fileAnnot. PLease specify correct column name.", sep=""))
-		isAv <- objANNOTATE@colRefPos %in% names(tblAnnot)	
-		if(!isAv)
-			stop(paste(" EASY ERROR:ANNOTATE\n Defined column colRefPos \n",objANNOTATE@colRefPos, "\n is not available in fileAnnot. PLease specify correct column name.", sep=""))
+		isUseCoord = objANNOTATE@colAnnotCoord != ""
 		
-		if(objANNOTATE@colRefTag != "") {
-			isAv <- objANNOTATE@colRefTag %in% names(tblAnnot)
+		if(isUseCoord) {
+			isAv = objANNOTATE@colAnnotCoord %in% names(tblAnnot)
+				if(!isAv)
+					stop(paste(" EASY ERROR:ANNOTATE\n Defined column --colAnnotCoord \n",objANNOTATE@colAnnotCoord, "\n is not available in known loci file \n",objANNOTATE@fileAnnot,"\n PLease specify correct column name.", sep=""))
+		} else {
+			isAv <- objANNOTATE@colAnnotChr %in% names(tblAnnot)
 			if(!isAv)
-				stop(paste(" EASY ERROR:ANNOTATE\n Defined column colRefTag \n",objANNOTATE@colRefTag, "\n is not available in fileAnnot. PLease specify correct column name.", sep=""))
+				stop(paste(" EASY ERROR:ANNOTATE\n Defined column colAnnotChr \n",objANNOTATE@colAnnotChr, "\n is not available in fileAnnot. PLease specify correct column name.", sep=""))
+			isAv <- objANNOTATE@colAnnotPos %in% names(tblAnnot)	
+			if(!isAv)
+				stop(paste(" EASY ERROR:ANNOTATE\n Defined column colAnnotPos \n",objANNOTATE@colAnnotPos, "\n is not available in fileAnnot. PLease specify correct column name.", sep=""))
+			
+		}
+		
+		if(objANNOTATE@colAnnotTag != "") {
+			isAv <- objANNOTATE@colAnnotTag %in% names(tblAnnot)
+			if(!isAv)
+				stop(paste(" EASY ERROR:ANNOTATE\n Defined column colAnnotTag \n",objANNOTATE@colAnnotTag, "\n is not available in fileAnnot. PLease specify correct column name.", sep=""))
 		}
 	}
 	
@@ -127,15 +138,13 @@ ANNOTATE.run <- function(objANNOTATE, objGWA) {
 	colInPos		=	objANNOTATE@colInPos
 	colInPval		=	objANNOTATE@colInPval
 	numPvalLim		=	objANNOTATE@numPvalLim
-	colRefChr		=	objANNOTATE@colRefChr
-	colRefPos		=	objANNOTATE@colRefPos
-	colRefTag		=	objANNOTATE@colRefTag
+	colAnnotChr		=	objANNOTATE@colAnnotChr
+	colAnnotPos		=	objANNOTATE@colAnnotPos
+	colAnnotTag		=	objANNOTATE@colAnnotTag
 	strAnnotTag		=	objANNOTATE@strAnnotTag
 	colOutAnnot		= 	objANNOTATE@colOutAnnot
-	numPosLim		=	objANNOTATE@numPosLim
-	
-	tblLoci<-read.table(objANNOTATE@fileAnnot, header=T, sep="\t", stringsAsFactors=FALSE)
-	numLoci = dim(tblLoci)[1]
+	numAnnotPosLim		=	objANNOTATE@numAnnotPosLim
+	colAnnotCoord  	= objANNOTATE@colAnnotCoord
 	
 	aInChr = GWADATA.getcol(objGWA, colInChr)
 	aInPos = GWADATA.getcol(objGWA, colInPos)
@@ -145,14 +154,31 @@ ANNOTATE.run <- function(objANNOTATE, objGWA) {
 	} else {
 		aInPval = rep(0, dim(objGWA@tblGWA)[1])
 	}
+
+	tblLoci<-read.table(objANNOTATE@fileAnnot, header=T, sep="\t", stringsAsFactors=FALSE)
+	numLoci = dim(tblLoci)[1]
 	
-	aRefChr = tblLoci[, which(names(tblLoci) == colRefChr)]
-	aRefPos = tblLoci[, which(names(tblLoci) == colRefPos)]
-	
-	if(colRefTag != "") {
-		aRefTag = tblLoci[, which(names(tblLoci) == colRefTag)]
+	if(colAnnotCoord!="") {
+		## extract values from coord 1:123_466
+		acoord = tblLoci[,colAnnotCoord]
+		aRefChr = unlist(lapply(strsplit(acoord,":"),function(x) x[1]))
+		strpos = unlist(lapply(strsplit(acoord,":"),function(x) x[2]))
+		aRefPos1 = as.integer(unlist(lapply(strsplit(strpos,"_"),function(x) x[1])))
+		aRefPos2 = as.integer(unlist(lapply(strsplit(strpos,"_"),function(x) x[2])))
 	} else {
-		aRefTag = rep(strAnnotTag,length(aRefPos))
+		aRefChr = tblLoci[,colAnnotChr]
+		anpos = as.integer(tblLoci[,colAnnotPos])
+		aRefPos1 = anpos
+		aRefPos2 = anpos
+	}
+	
+	# aRefChr = tblLoci[, which(names(tblLoci) == colAnnotChr)]
+	# aRefPos = tblLoci[, which(names(tblLoci) == colAnnotPos)]
+	
+	if(colAnnotTag != "") {
+		aRefTag = tblLoci[, which(names(tblLoci) == colAnnotTag)]
+	} else {
+		aRefTag = rep(strAnnotTag,length(aRefPos1))
 	}
 	
 	
@@ -164,13 +190,21 @@ ANNOTATE.run <- function(objANNOTATE, objGWA) {
 	
 	for(i in 1:numLoci) {
 		chrTmp = aRefChr[i]
-		posTmp = aRefPos[i]
+		# posTmp = aRefPos[i]
+		pos1Tmp = aRefPos1[i]
+		pos2Tmp = aRefPos2[i]
 		tagTmp = aRefTag[i]
-		# tagTmp = strAnnotTag
 		
-		#isCurrentLocus = aInChr == chrTmp & abs(aInPos - posTmp) <= numPosLim & aInPval <= numPvalLim
-		isCurrentLocus = aInChr == chrTmp & abs(aInPos - posTmp) <= numPosLim
+		pos1Tmp = pos1Tmp-numAnnotPosLim
+		pos2Tmp = pos2Tmp+numAnnotPosLim
+		
+		#isCurrentLocus = aInChr == chrTmp & abs(aInPos - posTmp) <= numAnnotPosLim & aInPval <= numPvalLim
+		# isCurrentLocus = aInChr == chrTmp & abs(aInPos - posTmp) <= numAnnotPosLim
+		# isCurrentLocus[is.na(isCurrentLocus)] = FALSE
+		
+		isCurrentLocus = aInChr == chrTmp & aInPos>=pos1Tmp & aInPos<=pos2Tmp
 		isCurrentLocus[is.na(isCurrentLocus)] = FALSE
+		
 		if(any(isCurrentLocus)) {
 			isAnyPvalLow = any(aInPval[isCurrentLocus] <= numPvalLim)
 			if(isAnyPvalLow) {
