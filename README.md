@@ -37,6 +37,7 @@ To start the program, you will have to load the package in R and call an ecf-scr
 library(EasyX)
 EasyX("/path2script/template.ecf")
 ```
+Alternatively, the EasyQC() and EasyStrata() functions will also work instead of EasyX().   
 Please check our website [www.genepi-regensburg.de/software](https://www.genepi-regensburg.de/software) for ecf-script templates. 
 ## Help
 
