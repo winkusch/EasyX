@@ -27,7 +27,7 @@ install_github("winkusch/EasyX")
 
 ### Executing program
 
-* To start the program, you will have to load the library and call an ecf-script by the EasyX function: 
+To start the program, you will have to load the package in R and call an ecf-script by the EasyX function: 
 ```
 library(EasyX)
 EasyX("/path2script/template.ecf")
