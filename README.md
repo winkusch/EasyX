@@ -45,8 +45,7 @@ Please contact thomas.winkler@klinik.uni-regensburg.de if you need assistance.
 
 ## Authors
 
-Contributors names and contact info:  
-Thomas Winkler ([@winkusch](https://twitter.com/winkusch))
+Thomas Winkler ([@winkusch](https://twitter.com/winkusch)), University of Regensburg, Germany
 
 ## Version History
 
