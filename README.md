@@ -1,6 +1,6 @@
 # EasyX (= EasyQC + EasyStrata)
 
-R package for GWAS quality control (= EasyQC) and for evaluation of stratified GWAS (= EasyStrata). 
+R package for GWAS quality control (= EasyQC) and for evaluation of stratified GWAS (= EasyStrata) . 
 
 ## Description
 
