@@ -38,7 +38,7 @@ library(EasyX)
 EasyX("/path2script/template.ecf")
 ```
 Alternatively, the EasyQC() and EasyStrata() functions will also work instead of EasyX().   
-Please check our website [www.genepi-regensburg.de/software](https://www.genepi-regensburg.de/software) for ecf-script templates. 
+Please check our website [www.genepi-regensburg.de/software](https://www.genepi-regensburg.de/software) for ecf-script templates and reference files. 
 ## Help
 
 Please contact thomas.winkler@klinik.uni-regensburg.de if you need assistance. 
