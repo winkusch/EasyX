@@ -22,7 +22,12 @@ These need to be installed prior to the installation of EasyX.
 
 We recommend to use 'devtools' in R to install the package directly from github:  
 ```
+library(devtools)
 install_github("winkusch/EasyX")
+```
+Alternatively, you can download the tarball [EasyX_1.0.tar.gz](https://homepages.uni-regensburg.de/~wit59712/easyx/EasyX_1.0.tar.gz) and install it in R: 
+```
+install.packages("EasyX_1.0.tar.gz")
 ```
 
 ### Executing program
