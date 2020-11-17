@@ -1,0 +1,56 @@
+#################################################################################################################
+#################################################################################################################
+
+DEFINE	--pathOut ./
+		--acolIn SNP;CHR;POS;A1;A2;EAF;BETA;SE;P
+		--acolInClasses character;character;numeric;character;character;numeric;numeric;numeric;numeric
+		
+EASYIN	--fileIn EASY_INSTALL_DIR/WHR_MEN.txt.gz --fileInTag MEN
+EASYIN	--fileIn EASY_INSTALL_DIR/WHR_WOMEN.txt.gz --fileInTag WOMEN
+
+#####################################################################################################################################################
+#####################################################################################################################################################
+## EASYSTRATA Scripting interface:
+START EASYX
+
+MERGEEASYIN --colInMarker SNP --blnMergeAll 0
+
+RENAMECOL --colInRename CHR.MEN --colOutRename CHR
+RENAMECOL --colInRename POS.MEN --colOutRename POS
+
+MIAMIPLOT 	--colMIAMIPlotUp P.WOMEN
+			--colMIAMIPlotDown P.MEN
+			--colInChr CHR
+			--colInPos POS
+			--astrDefaultColourChrUp gray;red
+			--astrDefaultColourChrDown gray;blue
+			--numPvalOffset 0.05
+
+ADJUSTALLELES 	--colInA1 A1.MEN 
+				--colInA2 A2.MEN
+				--colInFreq	EAF.MEN
+				--colInBeta	BETA.MEN
+				--colRefA1	A1.WOMEN
+				--colRefA2	A2.WOMEN
+				
+CALCPDIFF 	--acolBETAs BETA.MEN;BETA.WOMEN
+			--acolSEs SE.MEN;SE.WOMEN
+			--colOutPdiff P.Sexdiff
+
+MHPLOT 	--colMHPlot P.Sexdiff
+		--colInChr CHR
+		--colInPos POS
+		--numPvalOffset 0.05
+			
+FDR	--colPval P.Sexdiff --strFdrMethod BH
+
+INDEP 	--rcdCriterion P.Sexdiff.BH<0.2
+		--colIndep P.Sexdiff.BH
+		--colInChr CHR
+		--colInPos POS
+		--numPosLim 500000
+		
+STOP EASYX
+
+#################################################################################################################
+#################################################################################################################

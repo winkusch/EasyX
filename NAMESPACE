@@ -1,4 +1,6 @@
 export(EasyX)
+export(EasyQC)
+export(EasyStrata)
 import(methods,Cairo,plotrix,data.table,forestplot)
 importFrom("grDevices", "colors", "dev.cur", "dev.list", "dev.off","dev.set")
 importFrom("graphics", "abline", "arrows", "axis", "barplot", "grid", "legend","mtext", "par", "plot", "points", "strwidth", "text")

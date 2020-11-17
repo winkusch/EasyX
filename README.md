@@ -46,6 +46,7 @@ Thomas Winkler ([@winkusch](https://twitter.com/winkusch))
 
 * 1.0.0
     * Initial Commit
+	* basically a combination of EasyQC-v23.8 and EasyStrata-v18.1
 
 ## Citation
 

@@ -1,17 +1,17 @@
-\name{EasyX}
-\alias{EasyX}
+\name{EasyStrata}
+\alias{EasyStrata}
 \title{
-Function to run EasyX (g-v1.0.0).
+Function to run EasyStrata (g-v1.0.0).
 }
 \description{
-The Function takes the an EasyX config/script (ECF-) file and performs all steps defined in the ECF-file.
+The Function takes the an EasyStrata config/script (ECF-) file and performs all steps defined in the ECF-file.
 }
 \usage{
-EasyX(fileECF,blnValidityCheckOnly,blnReturnGwadata,blnReturnReport,aFileIn)
+EasyStrata(fileECF,blnValidityCheckOnly,blnReturnGwadata,blnReturnReport,aFileIn)
 }
 \arguments{
 \item{fileECF}{
-fileECF is an EasyX config/script (ECF) file.\cr
+fileECF is an EasyStrata config/script (ECF) file.\cr
 Please see 'EasyQC_9.0_Commands_140918.pdf' for more information on ECF functions and parameters.
 }
 \item{blnValidityCheckOnly}{
@@ -28,13 +28,13 @@ aFileIn is an array that pases paths to input files to the ecf (aFileIn=c(), def
 }
 }
 \references{
-http://www.genepi-regensburg.de/easyqc
+http://www.genepi-regensburg.de/easystrata
 }
 \examples{
-\donttest{installDir=system.file("extdata", package="EasyX")}
-# Example qc routine:
-\donttest{ecfFileQc=paste(installDir,"example_qc.ecf",sep="/")}
-\donttest{EasyX(ecfFileQc)}
+\donttest{installDir=system.file("extdata", package="EasyStrata")}
+## Example Pipeline:
+\donttest{ecfPipe=paste(extDataDir,"example_pipeline.ecf",sep="/")}
+\donttest{EasyStrata(ecfPipe)}
 }
 \author{
 Thomas Winkler <thomas.winkler@klinik.uni-regensburg.de>
