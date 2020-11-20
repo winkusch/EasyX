@@ -9,7 +9,7 @@ The EasyX R package combines the full functionality of two other R packages:
 - EasyStrata (Stratified GWAS evaluation, [Winkler et al. Bioinformatics 2015](https://pubmed.ncbi.nlm.nih.gov/25260699/)) 
 </ul>
 Any functions exported from EasyQC and EasyStrata are also available through EasyX.    
-More information as well as template scripts and reference files can be found at https://www.genepi-regensburg.de/software .
+More information as well as template scripts and reference files can be found at (https://www.genepi-regensburg.de/software) .
 
 ### Dependencies
 
