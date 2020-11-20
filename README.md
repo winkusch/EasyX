@@ -27,7 +27,7 @@ install_github("winkusch/EasyX")
 ```
 Alternatively, you can download the tarball [EasyX_1.0.1.tar.gz](https://homepages.uni-regensburg.de/~wit59712/easyx/EasyX_1.0.1.tar.gz) and install it in R: 
 ```
-install.packages("EasyX_1.0.tar.gz")
+install.packages("EasyX_1.0.1.tar.gz")
 ```
 
 ### Executing program
