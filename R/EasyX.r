@@ -135,7 +135,7 @@ fnSetNumCol <- function(objGWA) {
 EasyX.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,blnReturnReport=FALSE,aFileIn=c()){ 
 	
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
-	cat("|       EasyX	       |   g-v1.0   |      17/November/2020   |\n")
+	cat("|       EasyX	       |   g-v1.0.1  |     20/November/2020   |\n")
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 	cat("|  (C) 2013 Thomas Winkler, GNU General Public License, v3   |\n")
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")

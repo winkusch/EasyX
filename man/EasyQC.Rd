@@ -1,7 +1,7 @@
 \name{EasyQC}
 \alias{EasyQC}
 \title{
-Function to run EasyQC (g-v1.0.0).
+Function to run EasyQC (g-v1.0.1).
 }
 \description{
 The Function takes the an EasyQC config/script (ECF-) file and performs all steps defined in the ECF-file.

@@ -1,7 +1,7 @@
 \name{EasyX}
 \alias{EasyX}
 \title{
-Function to run EasyX (g-v1.0.0).
+Function to run EasyX (g-v1.0.1).
 }
 \description{
 The Function takes the an EasyX config/script (ECF-) file and performs all steps defined in the ECF-file.

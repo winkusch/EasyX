@@ -1,7 +1,7 @@
 \name{EasyStrata}
 \alias{EasyStrata}
 \title{
-Function to run EasyStrata (g-v1.0.0).
+Function to run EasyStrata (g-v1.0.1).
 }
 \description{
 The Function takes the an EasyStrata config/script (ECF-) file and performs all steps defined in the ECF-file.

@@ -49,6 +49,8 @@ Thomas Winkler ([@winkusch](https://twitter.com/winkusch)), University of Regens
 
 ## Version History
 
+* 1.0.1
+    * Added flexible Miami plot colouring of loci
 * 1.0.0
     * Initial Commit
 	* basically a combination of EasyQC-v23.8 and EasyStrata-v18.1

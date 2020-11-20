@@ -1,3 +1,5 @@
+### MIAMIPLOT update 201120
+### 	Add fileAnnotUp, fileAnnotDown
 setClass("MIAMIPLOT",
 	representation = representation(
 						strEqcCommand			=	"character",
@@ -19,6 +21,12 @@ setClass("MIAMIPLOT",
 						fileAnnot				=	"character",
 						numAnnotPosLim			=	"numeric",
 						numAnnotPvalLim			=	"numeric",
+						fileAnnotUp				=	"character",
+						numAnnotUpPosLim			=	"numeric",
+						numAnnotUpPvalLim			=	"numeric",
+						fileAnnotDown				=	"character",
+						numAnnotDownPosLim			=	"numeric",
+						numAnnotDownPvalLim			=	"numeric",
 						arcdAdd2Plot			=	"character",
 						anumAddPvalLine			=	"numeric",
 						astrAddPvalLineCol		=	"character",
@@ -76,6 +84,12 @@ setClass("MIAMIPLOT",
 						fileAnnot				=	"",
 						numAnnotPosLim			=	500000,
 						numAnnotPvalLim			=	1,
+						fileAnnotUp				=	"",
+						numAnnotUpPosLim			=	-1,
+						numAnnotUpPvalLim			=	-1,
+						fileAnnotDown				=	"",
+						numAnnotDownPosLim			=	-1,
+						numAnnotDownPvalLim			=	-1,
 						arcdAdd2Plot			=	"",
 						anumAddPvalLine			=	5e-8,
 						astrAddPvalLineCol		=	"red",
@@ -122,6 +136,8 @@ setMethod("setMIAMIPLOT", signature = (object = "MIAMIPLOT"), function(object) {
 						"colMIAMIPlotUp","colMIAMIPlotDown",
 						"astrDefaultColourChr","arcdColourCrit","astrColour","numDefaultSymbol","numDefaultCex","arcdSymbolCrit","anumSymbol","arcdCexCrit","anumCex",
 						"fileAnnot","numAnnotPosLim","numAnnotPvalLim",
+						"fileAnnotUp","numAnnotUpPosLim","numAnnotUpPvalLim",
+						"fileAnnotDown","numAnnotDownPosLim","numAnnotDownPvalLim",
 						"numPvalOffset",
 						"arcdAdd2Plot","anumAddPvalLine","astrAddPvalLineCol","anumAddPvalLineLty",
 						"blnYAxisBreak","numYAxisBreak","strPlotName",
@@ -370,6 +386,40 @@ MIAMIPLOT.GWADATA.valid <- function(objMIAMIPLOT, objGWA) {
 				stop(paste(" EASY ERROR:MIAMIPLOT\n Column 'Colour' is not available in fileAnnot. PLease correct file header.", sep=""))	
 	}
 	
+	if(objMIAMIPLOT@fileAnnotUp != "") {
+		if(!file.exists(objMIAMIPLOT@fileAnnotUp))
+			stop(paste("EASY ERROR:MIAMIPLOT\n File fileAnnotUp\n ",objMIAMIPLOT@fileAnnotUp,"\n does not exist.", sep=""))
+		### Cols exist?
+			tblAnnot10<-read.table(objMIAMIPLOT@fileAnnotUp,header=T, sep="",  stringsAsFactors=FALSE, nrows = 10,comment.char="",quote="")
+			isAv <- "Chr" %in% names(tblAnnot10)
+			if(!isAv)
+				stop(paste(" EASY ERROR:MIAMIPLOT\n Column 'Chr' is not available in fileAnnotUp. PLease correct file header.", sep=""))
+			isAv <- "Pos" %in% names(tblAnnot10)
+			if(!isAv)
+				stop(paste(" EASY ERROR:MIAMIPLOT\n Column 'Pos' is not available in fileAnnotUp. PLease correct file header.", sep=""))
+			isAv <- "Colour" %in% names(tblAnnot10)
+			if(!isAv)
+				stop(paste(" EASY ERROR:MIAMIPLOT\n Column 'Colour' is not available in fileAnnotUp. PLease correct file header.", sep=""))	
+	}
+	
+	if(objMIAMIPLOT@fileAnnotDown != "") {
+		if(!file.exists(objMIAMIPLOT@fileAnnotDown))
+			stop(paste("EASY ERROR:MIAMIPLOT\n File fileAnnotDown\n ",objMIAMIPLOT@fileAnnotDown,"\n does not exist.", sep=""))
+		### Cols exist?
+			tblAnnot10<-read.table(objMIAMIPLOT@fileAnnotDown,header=T, sep="",  stringsAsFactors=FALSE, nrows = 10,comment.char="",quote="")
+			isAv <- "Chr" %in% names(tblAnnot10)
+			if(!isAv)
+				stop(paste(" EASY ERROR:MIAMIPLOT\n Column 'Chr' is not available in fileAnnotDown. PLease correct file header.", sep=""))
+			isAv <- "Pos" %in% names(tblAnnot10)
+			if(!isAv)
+				stop(paste(" EASY ERROR:MIAMIPLOT\n Column 'Pos' is not available in fileAnnotDown. PLease correct file header.", sep=""))
+			isAv <- "Colour" %in% names(tblAnnot10)
+			if(!isAv)
+				stop(paste(" EASY ERROR:MIAMIPLOT\n Column 'Colour' is not available in fileAnnotDown. PLease correct file header.", sep=""))	
+	}
+	
+	
+	
 }
 MIAMIPLOT.run <- function(objMIAMIPLOT, objGWA) {
 
@@ -413,6 +463,15 @@ MIAMIPLOT.run <- function(objMIAMIPLOT, objGWA) {
 	fileAnnot 				=	objMIAMIPLOT@fileAnnot
 	numAnnotPosLim			=	objMIAMIPLOT@numAnnotPosLim
 	numAnnotPvalLim			=	objMIAMIPLOT@numAnnotPvalLim
+	
+	fileAnnotUp 				=	objMIAMIPLOT@fileAnnotUp
+	numAnnotUpPosLim			=	objMIAMIPLOT@numAnnotUpPosLim
+	numAnnotUpPvalLim			=	objMIAMIPLOT@numAnnotUpPvalLim
+	
+	fileAnnotDown 				=	objMIAMIPLOT@fileAnnotDown
+	numAnnotDownPosLim			=	objMIAMIPLOT@numAnnotDownPosLim
+	numAnnotDownPvalLim			=	objMIAMIPLOT@numAnnotDownPvalLim
+	
 	blnPlotVerticalLines	= 	objMIAMIPLOT@blnPlotVerticalLines
 	############################
 	
@@ -572,28 +631,57 @@ MIAMIPLOT.run <- function(objMIAMIPLOT, objGWA) {
 	tblPlot = cbind(tblPlot,colplotUp,colplotDown,plotCritKeyUp,plotCritKeyDown,symplotUp,symplotDown,cexplotUp,cexplotDown, stringsAsFactors = FALSE)
 
 	### Annot
-	if(fileAnnot != "") {
-		tblAnnot<-read.table(fileAnnot,header=T, sep="",  stringsAsFactors=FALSE, comment.char="",quote="")
-		isSignifUp <- tblPlot$yUp > -log10(numAnnotPvalLim)
-		isSignifUp[is.na(isSignifUp)] <- FALSE
-		isSignifDown <- tblPlot$yDown > -log10(numAnnotPvalLim)
-		isSignifDown[is.na(isSignifDown)] <- FALSE
-		for(iLocus in 1:nrow(tblAnnot)) {
-			isLocus = (tblPlot$chr == tblAnnot$Chr[iLocus]) & (abs(tblPlot$pos-tblAnnot$Pos[iLocus])<numAnnotPosLim)
+	if(fileAnnot != "" | fileAnnotUp != "" | fileAnnotDown != "") {
+		
+		if(numAnnotUpPosLim==-1) numAnnotUpPosLim=numAnnotPosLim
+		if(numAnnotDownPosLim==-1) numAnnotDownPosLim=numAnnotPosLim
+		if(numAnnotUpPvalLim==-1) numAnnotUpPvalLim=numAnnotPvalLim
+		if(numAnnotDownPvalLim==-1) numAnnotDownPvalLim=numAnnotPvalLim
+		
+		if(fileAnnotUp != "") {
+			## -> use it for up
+			tblAnnotUp<-read.table(fileAnnotUp,header=T, sep="",  stringsAsFactors=FALSE, comment.char="",quote="")
+			isSignifUp <- tblPlot$yUp > -log10(numAnnotUpPvalLim)
+			isSignifUp[is.na(isSignifUp)] <- FALSE
+		}
+		if(fileAnnotDown != "") {
+			## -> use it for down
+			tblAnnotDown<-read.table(fileAnnotDown,header=T, sep="",  stringsAsFactors=FALSE, comment.char="",quote="")
+			isSignifDown <- tblPlot$yDown > -log10(numAnnotDownPvalLim)
+			isSignifDown[is.na(isSignifDown)] <- FALSE
+		}
+		if(fileAnnot != "") {
+			## use it for up and down / may overwrite the things from above
+			tblAnnotUp <- tblAnnotDown <-read.table(fileAnnot,header=T, sep="",  stringsAsFactors=FALSE, comment.char="",quote="")
+			isSignifUp <- tblPlot$yUp > -log10(numAnnotPvalLim)
+			isSignifUp[is.na(isSignifUp)] <- FALSE
+			isSignifDown <- tblPlot$yDown > -log10(numAnnotPvalLim)
+			isSignifDown[is.na(isSignifDown)] <- FALSE
+		}
+				
+		for(iLocus in 1:nrow(tblAnnotUp)) {
+			## check if numAnnotUpPosLim is set to def 
+			isLocus = (tblPlot$chr == tblAnnotUp$Chr[iLocus]) & (abs(tblPlot$pos-tblAnnotUp$Pos[iLocus])<numAnnotUpPosLim)
 			#isColourUp = isLocus & is.na(tblPlot$colplotUp) & isSignifUp
 			isColourUp = isLocus & isSignifUp
 			if(any(isColourUp)) {
 				# [isLocus] so that all SNPs in thelocus get coloured
-				tblPlot$colplotUp[isLocus] <- tblAnnot$Colour[iLocus]
+				tblPlot$colplotUp[isLocus] <- tblAnnotUp$Colour[iLocus]
 				tblPlot$plotCritKeyUp[isLocus] <- Inf
 			}
+		}
+		
+		for(iLocus in 1:nrow(tblAnnotDown)) {
+			isLocus = (tblPlot$chr == tblAnnotDown$Chr[iLocus]) & (abs(tblPlot$pos-tblAnnotDown$Pos[iLocus])<numAnnotDownPosLim)
 			#isColourDown = isLocus & is.na(tblPlot$colplotDown) & isSignifDown
 			isColourDown = isLocus & isSignifDown
 			if(any(isColourDown)) {
-				tblPlot$colplotDown[isLocus] <- tblAnnot$Colour[iLocus]
+				# [isLocus] so that all SNPs in thelocus get coloured
+				tblPlot$colplotDown[isLocus] <- tblAnnotDown$Colour[iLocus]
 				tblPlot$plotCritKeyDown[isLocus] <- Inf
 			}
 		}
+		
 	}
 	
 	############################
